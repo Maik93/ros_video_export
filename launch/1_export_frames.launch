@@ -1,0 +1,15 @@
+<launch>
+  <arg name="bag" value="/home/flynn/leo_bags/planner_2022-09-27-10-50-05.bag"/>
+
+  <arg name="topic" value="/t265/fisheye1/rect/image"/>
+  <arg name="compressed" value="true"/>
+
+  <node name="player" pkg="rosbag" type="play" required="true" args="$(arg bag)"/>
+
+  <node name="decompressor" pkg="image_transport" type="republish" args="compressed in:=$(arg topic) raw out:=$(arg topic)_deco"/>
+
+  <node name="extractor" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
+    <remap unless="$(arg compressed)" from="image" to="$(arg topic)"/>
+    <remap     if="$(arg compressed)" from="image" to="$(arg topic)_deco"/>
+  </node>
+</launch>
